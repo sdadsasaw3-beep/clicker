@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Кликер</title>
+
+    <style>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: #111;
+            color: white;
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+
+        .game {
+            max-width: 500px;
+            margin: auto;
+            padding: 25px;
+        }
+
+        h1 {
+            font-size: 40px;
+        }
+
+        #coins {
+            font-size: 50px;
+            color: gold;
+            margin: 20px;
+        }
+
+        #click {
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            border: none;
+            background: orange;
+            color: white;
+            font-size: 30px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 5px 25px #000;
+        }
+
+        #click:active {
+            transform: scale(0.9);
+        }
+
+        .shop {
+            margin-top: 35px;
+            background: #1d1d1d;
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        .shop h2 {
+            color: #ffd700;
+        }
+
+        .item {
+            background: #292929;
+            padding: 15px;
+            margin-top: 12px;
+            border-radius: 12px;
+        }
+
+        .item button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 8px;
+            border: none;
+            border-radius: 8px;
+            background: #2196f3;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .item button:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+
+        #stats {
+            color: #aaa;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="game">
+
+    <h1>🪙 Кликер</h1>
+
+    <div id="coins">0</div>
+
+    <button id="click">КЛИК!</button>
+
+    <div id="stats">
+        За клик: 1 🪙<br>
+        Автоклик: 0 🪙/сек
+    </div>
+
+    <div class="shop">
+
+        <h2>🛒 МАГАЗИН</h2>
+
+        <div class="item">
+            ⚡ <b>Усиленный клик</b>
+            <br>
+            +1 монета за клик
+            <button id="buyPower">
+                Купить — 50 🪙
+            </button>
+        </div>
+
+        <div class="item">
+            🚀 <b>Мега-клик</b>
+            <br>
+            +5 монет за клик
+            <button id="buyMega">
+                Купить — 250 🪙
+            </button>
+        </div>
+
+        <div class="item">
+            🤖 <b>Автокликер</b>
+            <br>
+            +1 монета каждую секунду
+            <button id="buyAuto">
+                Купить — 500 🪙
+            </button>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+let coins = 0;
+let power = 1;
+let autoClick = 0;
+
+let powerPrice = 50;
+let megaPrice = 250;
+let autoPrice = 500;
+
+const coinsText =
+    document.getElementById("coins");
+
+const clickButton =
+    document.getElementById("click");
+
+const stats =
+    document.getElementById("stats");
+
+const buyPower =
+    document.getElementById("buyPower");
+
+const buyMega =
+    document.getElementById("buyMega");
+
+const buyAuto =
+    document.getElementById("buyAuto");
+
+
+clickButton.onclick = function() {
+
+    coins += power;
+
+    update();
+
+};
+
+
+buyPower.onclick = function() {
+
+    if (coins >= powerPrice) {
+
+        coins -= powerPrice;
+
+        power += 1;
+
+        powerPrice =
+            Math.floor(powerPrice * 1.5);
+
+        update();
+    }
+
+};
+
+
+buyMega.onclick = function() {
+
+    if (coins >= megaPrice) {
+
+        coins -= megaPrice;
+
+        power += 5;
+
+        megaPrice =
+            Math.floor(megaPrice * 1.7);
+
+        update();
+    }
+
+};
+
+
+buyAuto.onclick = function() {
+
+    if (coins >= autoPrice) {
+
+        coins -= autoPrice;
+
+        autoClick += 1;
+
+        autoPrice =
+            Math.floor(autoPrice * 2);
+
+        update();
+    }
+
+};
+
+
+setInterval(function() {
+
+    if (autoClick > 0) {
+
+        coins += autoClick;
+
+        update();
+
+    }
+
+}, 1000);
+
+
+function update() {
+
+    coinsText.textContent =
+        coins;
+
+    stats.innerHTML =
+        "За клик: " + power +
+        " 🪙<br>" +
+        "Автоклик: " + autoClick +
+        " 🪙/сек";
+
+    buyPower.textContent =
+        "Купить — " + powerPrice + " 🪙";
+
+    buyMega.textContent =
+        "Купить — " + megaPrice + " 🪙";
+
+    buyAuto.textContent =
+        "Купить — " + autoPrice + " 🪙";
+
+    buyPower.disabled =
+        coins < powerPrice;
+
+    buyMega.disabled =
+        coins < megaPrice;
+
+    buyAuto.disabled =
+        coins < autoPrice;
+}
+
+update();
+
+</script>
+
+</body>
+</html>
+
+
