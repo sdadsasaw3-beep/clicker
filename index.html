@@ -2,7 +2,11 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <script src="https://st.max.ru/js/max-web-app.js"></script>
+
     <title>Кликер</title>
 
     <style>
@@ -21,14 +25,15 @@
             padding: 25px;
         }
 
-        h1 {
-            font-size: 40px;
+        #user {
+            color: #aaa;
+            margin-bottom: 10px;
         }
 
         #coins {
             font-size: 50px;
             color: gold;
-            margin: 20px;
+            margin: 25px;
         }
 
         #click {
@@ -40,8 +45,6 @@
             color: white;
             font-size: 30px;
             font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 5px 25px #000;
         }
 
         #click:active {
@@ -49,14 +52,21 @@
         }
 
         .shop {
-            margin-top: 35px;
+            margin-top: 30px;
             background: #1d1d1d;
             padding: 20px;
             border-radius: 15px;
         }
 
-        .shop h2 {
-            color: #ffd700;
+        .item button {
+            width: 100%;
+            padding: 14px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 10px;
+            background: #2196f3;
+            color: white;
+            font-size: 16px;
         }
 
         .item {
@@ -64,23 +74,6 @@
             padding: 15px;
             margin-top: 12px;
             border-radius: 12px;
-        }
-
-        .item button {
-            width: 100%;
-            padding: 12px;
-            margin-top: 8px;
-            border: none;
-            border-radius: 8px;
-            background: #2196f3;
-            color: white;
-            font-size: 16px;
-            cursor: pointer;
-        }
-
-        .item button:disabled {
-            background: #555;
-            cursor: not-allowed;
         }
 
         #stats {
@@ -93,6 +86,8 @@
 <body>
 
 <div class="game">
+
+    <div id="user">Загрузка...</div>
 
     <h1>🪙 Кликер</h1>
 
@@ -113,6 +108,7 @@
             ⚡ <b>Усиленный клик</b>
             <br>
             +1 монета за клик
+
             <button id="buyPower">
                 Купить — 50 🪙
             </button>
@@ -122,6 +118,7 @@
             🚀 <b>Мега-клик</b>
             <br>
             +5 монет за клик
+
             <button id="buyMega">
                 Купить — 250 🪙
             </button>
@@ -131,6 +128,7 @@
             🤖 <b>Автокликер</b>
             <br>
             +1 монета каждую секунду
+
             <button id="buyAuto">
                 Купить — 500 🪙
             </button>
@@ -142,9 +140,9 @@
 
 <script>
 
-let coins = 0;
-let power = 1;
-let autoClick = 0;
+let coins = Number(localStorage.getItem("coins")) || 0;
+let power = Number(localStorage.getItem("power")) || 1;
+let autoClick = Number(localStorage.getItem("autoClick")) || 0;
 
 let powerPrice = 50;
 let megaPrice = 250;
@@ -153,11 +151,11 @@ let autoPrice = 500;
 const coinsText =
     document.getElementById("coins");
 
-const clickButton =
-    document.getElementById("click");
-
 const stats =
     document.getElementById("stats");
+
+const clickButton =
+    document.getElementById("click");
 
 const buyPower =
     document.getElementById("buyPower");
@@ -169,79 +167,127 @@ const buyAuto =
     document.getElementById("buyAuto");
 
 
-clickButton.onclick = function() {
+// MAX WebApp
+if (window.WebApp) {
+    try {
+        window.WebApp.ready();
+        window.WebApp.expand();
+
+        const user =
+            window.WebApp.initDataUnsafe?.user;
+
+        if (user) {
+            document.getElementById("user").textContent =
+                "👋 Привет, " +
+                (user.first_name || "игрок") +
+                "!";
+        }
+    } catch (error) {
+        console.log("MAX WebApp:", error);
+    }
+}
+
+
+// Клик
+clickButton.onclick = function () {
 
     coins += power;
 
+    save();
     update();
 
 };
 
 
-buyPower.onclick = function() {
+// Усиленный клик
+buyPower.onclick = function () {
 
     if (coins >= powerPrice) {
 
         coins -= powerPrice;
-
-        power += 1;
+        power++;
 
         powerPrice =
             Math.floor(powerPrice * 1.5);
 
+        save();
         update();
     }
 
 };
 
 
-buyMega.onclick = function() {
+// Мега-клик
+buyMega.onclick = function () {
 
     if (coins >= megaPrice) {
 
         coins -= megaPrice;
-
         power += 5;
 
         megaPrice =
             Math.floor(megaPrice * 1.7);
 
+        save();
         update();
     }
 
 };
 
 
-buyAuto.onclick = function() {
+// Автокликер
+buyAuto.onclick = function () {
 
     if (coins >= autoPrice) {
 
         coins -= autoPrice;
-
-        autoClick += 1;
+        autoClick++;
 
         autoPrice =
             Math.floor(autoPrice * 2);
 
+        save();
         update();
     }
 
 };
 
 
-setInterval(function() {
+// Автоматическое получение монет
+setInterval(function () {
 
     if (autoClick > 0) {
 
         coins += autoClick;
 
+        save();
         update();
-
     }
 
 }, 1000);
 
 
+// Сохранение
+function save() {
+
+    localStorage.setItem(
+        "coins",
+        coins
+    );
+
+    localStorage.setItem(
+        "power",
+        power
+    );
+
+    localStorage.setItem(
+        "autoClick",
+        autoClick
+    );
+}
+
+
+// Обновление интерфейса
 function update() {
 
     coinsText.textContent =
@@ -272,11 +318,13 @@ function update() {
         coins < autoPrice;
 }
 
+
 update();
 
 </script>
 
 </body>
 </html>
+
 
 
